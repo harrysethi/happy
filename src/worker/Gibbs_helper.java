@@ -21,25 +21,22 @@ import domain.Potentials;
  */
 public class Gibbs_helper {
 
-	public static void startWork(List<InGraph> inGraphs, ModelType modelType) {
-		
-		
-		for (InGraph inGraph : inGraphs) {
-			//generating samples
-			List<Gibbs_sample> samples = new ArrayList<Gibbs_sample>();
-			samples.add(generateRandomSample(inGraph));
-			
-			Gibbs_sample lastSample = samples.get(0);
-			
-			while(true) { //TODO
-				lastSample = sampleVariables(samples, inGraph, modelType, lastSample);
-			}
+	public static void startWork(InGraph inGraph, ModelType modelType) {
+
+		// generating samples
+		List<Gibbs_sample> samples = new ArrayList<Gibbs_sample>();
+		samples.add(generateRandomSample(inGraph));
+
+		Gibbs_sample lastSample = samples.get(0);
+
+		while (true) { // TODO
+			lastSample = sampleVariables(samples, inGraph, modelType, lastSample);
 		}
 	}
 	
 	private static Gibbs_sample sampleVariables(List<Gibbs_sample> samples, InGraph inGraph, ModelType modelType, Gibbs_sample lastSample) {
-		sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_1);
-		sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_2);
+		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_1);
+		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_2);
 		
 		return lastSample;
 	}
@@ -77,7 +74,7 @@ public class Gibbs_helper {
 			
 			double cummProb = prob[0];
 			for(int j=1;j<Consts.characters.length;j++){
-				cummProb += prob[i];
+				cummProb += prob[j];
 				if(randomProb<cummProb) {
 					newChar = Consts.characters[j];
 					break;

@@ -89,13 +89,15 @@ public class ModelAccuracy {
 		for(int i=0;i<dataPairs.size();i++) {
 			InGraph inGraph = inGraphs.get(i);
 			
-			LB_graph lb_graph = lb_graph_map.get(inGraph);
-			Map<InGraphNode, Map<Object, List<Object>>> beliefs = LB_helper.runAlgo_calculateBelief(inGraph, lb_graph, modelType, isMAP);
+			Gibbs_helper.startWork(inGraph, modelType);
+			//LB_graph lb_graph = lb_graph_map.get(inGraph);
+			//Map<InGraphNode, Map<Object, List<Object>>> beliefs = LB_helper.runAlgo_calculateBelief(inGraph, lb_graph, modelType, isMAP);
 			
-			loglikelihood = getModelAccuracy_helper(accuracyType, truthPairs, mostProbablePairs, loglikelihood, i, inGraph, beliefs);
+			//loglikelihood = getModelAccuracy_helper(accuracyType, truthPairs, mostProbablePairs, loglikelihood, i, inGraph, beliefs);
 		}
 		
-		return finalizeModelAccuracy_logLikelihood(accuracyType, dataPairs, truthPairs, mostProbablePairs, loglikelihood, startTime);
+		//return finalizeModelAccuracy_logLikelihood(accuracyType, dataPairs, truthPairs, mostProbablePairs, loglikelihood, startTime);
+		return 0.0;
 	}
 
 	private static double getModelAccuracy_JunctionTreeMP(ModelType modelType, AccuracyType accuracyType, 

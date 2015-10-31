@@ -5,6 +5,11 @@ package test;
 
 import java.io.IOException;
 
+import constants.AccuracyType;
+import constants.InferenceType;
+import constants.ModelType;
+import worker.ModelAccuracy;
+
 /**
  * @author harinder
  *
@@ -20,6 +25,10 @@ public class TestMain {
 		
 		readPotentials();
 		
+		String dataTreePath = "data/OCRdataset-2/data/data-tree.dat";
+		String truthTreePath = "data/OCRdataset-2/data/truth-tree.dat";
+		
+		ModelAccuracy.getModelAccuracy(dataTreePath, truthTreePath, ModelType.PAIR_SKIP_MODEL, AccuracyType.WORD_WISE, InferenceType.GIBBS, false);
 		
 		System.out.println("------completed------");
 	}
