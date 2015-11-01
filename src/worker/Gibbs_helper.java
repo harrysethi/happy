@@ -29,20 +29,36 @@ public class Gibbs_helper {
 
 		Gibbs_sample lastSample = samples.get(0);
 
-		while (true) { // TODO
-			lastSample = sampleVariables(samples, inGraph, modelType, lastSample);
-		}
+		int numOfNodes = inGraph.nodes_w1.length + inGraph.nodes_w2.length;
+		int t = 0;
+		int r = 1000; //burn-in phase time
+		int T = r/numOfNodes;
+		boolean burnInOver = false;
+		
+		do { // TODO
+			t++;
+			
+			if((t-1)*numOfNodes>r){
+				burnInOver = true;
+				t=0;
+			}
+			
+			lastSample = sampleVariables(samples, inGraph, modelType, lastSample, burnInOver);
+			
+		} while(!burnInOver || t<T);
+		
+		System.out.println(lastSample);
 	}
 	
-	private static Gibbs_sample sampleVariables(List<Gibbs_sample> samples, InGraph inGraph, ModelType modelType, Gibbs_sample lastSample) {
-		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_1);
-		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_2);
+	private static Gibbs_sample sampleVariables(List<Gibbs_sample> samples, InGraph inGraph, ModelType modelType, Gibbs_sample lastSample, boolean burnInOver) {
+		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_1, burnInOver);
+		lastSample = sampleVariables_helper(samples, inGraph, modelType, lastSample, WordNumType.WORD_NUM_2, burnInOver);
 		
 		return lastSample;
 	}
 	
 	private static Gibbs_sample sampleVariables_helper(List<Gibbs_sample> samples, InGraph inGraph, ModelType modelType, 
-			Gibbs_sample lastSample, WordNumType wordNumType) {
+			Gibbs_sample lastSample, WordNumType wordNumType, boolean burnInOver) {
 		
 		int size = inGraph.nodes_w1.length;
 		if(wordNumType == WordNumType.WORD_NUM_2)
@@ -66,7 +82,7 @@ public class Gibbs_helper {
 			}
 			
 			//selecting the character
-			double randomProb = Math.random();
+			double randomProb = 0.5;//Math.random();
 			Character newChar = null;
 			if(randomProb<prob[0]) {
 				newChar = Consts.characters[0];
@@ -82,7 +98,7 @@ public class Gibbs_helper {
 			}
 			
 			lastSample = new Gibbs_sample(lastSample, i, newChar, wordNumType);
-			samples.add(lastSample);
+			if(burnInOver) samples.add(lastSample);
 		}
 		
 		return lastSample;
@@ -151,11 +167,11 @@ public class Gibbs_helper {
 		Gibbs_sample gibbs_sample = new Gibbs_sample(size_w1, size_w2);
 		
 		for(int i=0; i<size_w1; i++) {
-			gibbs_sample.sample_w1[i] = Util.getRandomCharacter();
+			gibbs_sample.sample_w1[i] = 'd';//Util.getRandomCharacter();
 		}
 		
 		for(int i=0; i<size_w2; i++) {
-			gibbs_sample.sample_w2[i] = Util.getRandomCharacter();
+			gibbs_sample.sample_w2[i] = 'd';//Util.getRandomCharacter();
 		}
 		
 		return gibbs_sample;
