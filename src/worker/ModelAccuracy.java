@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+
 import constants.AccuracyType;
 import constants.InferenceType;
 import constants.ModelType;
@@ -26,6 +28,7 @@ import domain.Pair_truth;
  */
 public class ModelAccuracy {
 	
+	//*** In case of GibbsSampling, isMap is mapped to isRandom ***
 	public static double getModelAccuracy(String dataTreePath, String truthTreePath, 
 			ModelType modelType, AccuracyType accuracyType, InferenceType inferenceType, boolean isMAP) throws IOException {
 		
@@ -46,7 +49,7 @@ public class ModelAccuracy {
 			break;
 			
 		case GIBBS:
-			modelAccuracy = getModelAccuracy_Gibbs(modelType, accuracyType, dataPairs, truthPairs, inGraphs);
+			modelAccuracy = getModelAccuracy_Gibbs(modelType, accuracyType, dataPairs, truthPairs, inGraphs, isMAP);
 			break;
 		}
 		
@@ -77,27 +80,24 @@ public class ModelAccuracy {
 	
 	
 	private static double getModelAccuracy_Gibbs(ModelType modelType, AccuracyType accuracyType, 
-			List<Pair_data> dataPairs, List<Pair_truth> truthPairs, List<InGraph> inGraphs) throws IOException {
+			List<Pair_data> dataPairs, List<Pair_truth> truthPairs, List<InGraph> inGraphs, boolean isRandom) throws IOException {
 		
 		//Map<InGraph, LB_graph> lb_graph_map = LB_helper.create_LB_graphs(inGraphs, modelType);
 		
 		List<Pair_truth> mostProbablePairs = new ArrayList<Pair_truth>();
 		double loglikelihood = 0.0; //used for AVERAGE_DATASET_LOGLIKELIHOOD
 		
-		//long startTime = System.nanoTime();
+		long startTime = System.nanoTime();
 		
 		for(int i=0;i<dataPairs.size();i++) {
 			InGraph inGraph = inGraphs.get(i);
 			
-			Gibbs_helper.startWork(inGraph, modelType);
-			//LB_graph lb_graph = lb_graph_map.get(inGraph);
-			//Map<InGraphNode, Map<Object, List<Object>>> beliefs = LB_helper.runAlgo_calculateBelief(inGraph, lb_graph, modelType, isMAP);
+			loglikelihood = Gibbs_helper.startWork(inGraph, modelType, mostProbablePairs, isRandom, accuracyType, loglikelihood, i, truthPairs);
 			
 			//loglikelihood = getModelAccuracy_helper(accuracyType, truthPairs, mostProbablePairs, loglikelihood, i, inGraph, beliefs);
 		}
 		
-		//return finalizeModelAccuracy_logLikelihood(accuracyType, dataPairs, truthPairs, mostProbablePairs, loglikelihood, startTime);
-		return 0.0;
+		return finalizeModelAccuracy_logLikelihood(accuracyType, dataPairs, truthPairs, mostProbablePairs, loglikelihood, startTime);
 	}
 
 	private static double getModelAccuracy_JunctionTreeMP(ModelType modelType, AccuracyType accuracyType, 
@@ -162,7 +162,7 @@ public class ModelAccuracy {
 	
 	private static double getWordProb_log(String word, InGraphNode[] inGraphNodes,
 			Map<InGraphNode, Map<Object, List<Object>>> beliefs) {
-		double wordProb = 1.0;
+		double wordProb = 0.0;
 
 		for(int i=0;i<inGraphNodes.length;i++) {
 				InGraphNode inGraphNode = inGraphNodes[i];
